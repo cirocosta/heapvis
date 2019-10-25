@@ -3,3 +3,14 @@ install:
 
 test:
 	go test -v ./...
+
+
+
+profile: sample.out
+	./$<
+	go tool pprof ./profile.pprof
+
+sample.out:
+	go build -v -i -o $@ ./sample
+
+
