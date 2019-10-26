@@ -1,10 +1,12 @@
 package pkg_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"fmt"
 
 	"github.com/cirocosta/heapvis/pkg"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Analyzer", func() {
@@ -49,6 +51,11 @@ var _ = Describe("Analyzer", func() {
 			It("succeeds", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(profiles).To(HaveLen(1))
+			})
+
+			FIt("captures profiling info", func() {
+				profile := profiles[0]
+				fmt.Printf("profile=%+v\n", profile)
 			})
 		})
 	})

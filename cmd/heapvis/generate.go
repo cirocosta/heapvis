@@ -5,10 +5,10 @@ import (
 )
 
 type generateCommand struct {
-	Profile string `long:"profile" required:"true" description:"pprof profile to read"`
+	Profiles []string `long:"profile" required:"true" description:"pprof profile to read"`
 }
 
 func (c *generateCommand) Execute(args []string) (err error) {
-	_, err = pkg.LoadProfile(c.Profile)
+	_, err = pkg.LoadProfiles(c.Profiles)
 	return
 }
