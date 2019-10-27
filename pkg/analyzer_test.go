@@ -3,7 +3,6 @@ package pkg_test
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 
 	"github.com/cirocosta/heapvis/pkg"
@@ -27,7 +26,7 @@ var _ = Describe("Analyzer", func() {
 		})
 
 		JustBeforeEach(func() {
-			err := profile.ToCSV(buf)
+			err := pkg.ToCSV(buf, []pkg.Profile{profile})
 			Expect(err).ToNot(HaveOccurred())
 
 			lines = readLines(buf)
@@ -105,8 +104,7 @@ var _ = Describe("Analyzer", func() {
 			})
 
 			It("captures profiling info", func() {
-				profile := profiles[0]
-				fmt.Printf("profile=%+v\n", profile)
+				// TODO - verify that the numbers match
 			})
 		})
 	})

@@ -46,18 +46,21 @@ const (
 	CSVHeader = "fn,alloc_objects,alloc_space,inuse_objects,inuse_space"
 )
 
-func (p Profile) ToCSV(w io.Writer) (err error) {
+func ToCSV(w io.Writer, profiles []Profile) (err error) {
 	_, err = io.WriteString(w, CSVHeader+"\n")
 	if err != nil {
 		return
 	}
 
-	for fn, vals := range p {
-		_, err = fmt.Fprintf(w, "%s,%d,%d,%d,%d\n", fn,
-			vals[0], vals[1], vals[2], vals[3],
-		)
-		if err != nil {
-			return
+	for _, profile := range profiles {
+		for fn, vals := range profile {
+			_, err = fmt.Fprintf(w, "%s,%d,%d,%d,%d\n", fn,
+				vals[0], vals[1], vals[2], vals[3],
+			)
+
+			if err != nil {
+				return
+			}
 		}
 	}
 
