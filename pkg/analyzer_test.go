@@ -1,7 +1,10 @@
 package pkg_test
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/cirocosta/heapvis/pkg"
 
@@ -10,6 +13,54 @@ import (
 )
 
 var _ = Describe("Analyzer", func() {
+
+	Describe("ToCSV", func() {
+
+		var (
+			buf     *bytes.Buffer
+			profile pkg.Profile
+			lines   []string
+		)
+
+		BeforeEach(func() {
+			buf = new(bytes.Buffer)
+		})
+
+		JustBeforeEach(func() {
+			err := profile.ToCSV(buf)
+			Expect(err).ToNot(HaveOccurred())
+
+			lines = readLines(buf)
+		})
+
+		Context("empty profile", func() {
+			It("writes just headers", func() {
+				Expect(lines).To(HaveLen(1))
+
+				header := lines[0]
+
+				Expect(header).To(Equal(pkg.CSVHeader))
+			})
+		})
+
+		Context("having samples", func() {
+
+			BeforeEach(func() {
+				profile = pkg.Profile{
+					"fmt.Printf": [4]int64{
+						1, 2, 3, 4,
+					},
+				}
+			})
+
+			It("writes headers + lines", func() {
+				Expect(lines).To(HaveLen(2))
+
+				firstRow := lines[1]
+				Expect(firstRow).To(Equal(("fmt.Printf,1,2,3,4")))
+			})
+		})
+	})
 
 	Describe("LoadProfiles", func() {
 
@@ -53,7 +104,7 @@ var _ = Describe("Analyzer", func() {
 				Expect(profiles).To(HaveLen(1))
 			})
 
-			FIt("captures profiling info", func() {
+			It("captures profiling info", func() {
 				profile := profiles[0]
 				fmt.Printf("profile=%+v\n", profile)
 			})
@@ -61,3 +112,19 @@ var _ = Describe("Analyzer", func() {
 	})
 
 })
+
+func readLines(r io.Reader) []string {
+	scanner := bufio.NewScanner(r)
+	res := []string{}
+
+	for scanner.Scan() {
+		res = append(res, scanner.Text())
+	}
+
+	err := scanner.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	return res
+}

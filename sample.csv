@@ -1,0 +1,7 @@
+fname,value
+main.fn,1
+main.fn,2
+main.fn,3
+fmt.Printf,2
+fmt.Printf,2
+fmt.Printf,4

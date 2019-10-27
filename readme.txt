@@ -13,10 +13,21 @@ THE HYPOTHESIS
 
 IMPLEMENTATION
 
+	
 	vis
 
-		- sort by the biggest difference over time
-		- delta + variance?
+
+		y = function name (sorted by biggest diff in delta)
+		x = delta over time
+
+
+
+		csv:
+
+			main.fn,main.main,fmt.Printf
+			1,2,3
+			4,2,1
+			3.2.1
 
 
 
@@ -26,6 +37,9 @@ IMPLEMENTATION
 
 		- with matplotlib, it seems like it can be done quite nicely
 			https://stackoverflow.com/questions/17614499/frequency-trail-in-matplotlib
+
+
+		- ridgeplots: https://www.data-to-viz.com/graph/ridgeline.html
 
 
 

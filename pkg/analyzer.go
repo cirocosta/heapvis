@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	pprof "github.com/google/pprof/profile"
@@ -10,10 +11,10 @@ import (
 type SampleType uint8
 
 const (
-	AllocObjects SampleType = iota + 1 // alloc_objjects
-	AllocSpace                         // alloc_space
-	InUseObjects                       // inuse_objects
-	InUseSpace                         // inuse_space
+	AllocObjects SampleType = iota // alloc_objects
+	AllocSpace                     // alloc_space
+	InUseObjects                   // inuse_objects
+	InUseSpace                     // inuse_space
 )
 
 // Represents the visualization of a profile, s
@@ -33,15 +34,58 @@ const (
 //
 
 type (
+
 	// Profile represents a summarized representation of a pprof capture.
 	//
 	// It maps a given source line location to a statistic.
 	//
-	Profile struct {
-		Type SampleType
-		Data map[string]int64
-	}
+	Profile map[string][4]int64
 )
+
+const (
+	CSVHeader = "fn,alloc_objects,alloc_space,inuse_objects,inuse_space"
+)
+
+func (p Profile) ToCSV(w io.Writer) (err error) {
+	_, err = io.WriteString(w, CSVHeader+"\n")
+	if err != nil {
+		return
+	}
+
+	for fn, vals := range p {
+		_, err = fmt.Fprintf(w, "%s,%d,%d,%d,%d\n", fn,
+			vals[0], vals[1], vals[2], vals[3],
+		)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// FromPprof converts a pprof memory profile to `Profile`.
+//
+func FromPprof(src *pprof.Profile) (profile Profile, err error) {
+	profile = Profile{}
+
+	for _, sample := range src.Sample {
+
+		var (
+			fn       = sample.Location[0].Line[0].Function.Name
+			existing = profile[fn]
+		)
+
+		profile[fn] = [4]int64{
+			existing[0] + sample.Value[0],
+			existing[1] + sample.Value[1],
+			existing[2] + sample.Value[2],
+			existing[3] + sample.Value[3],
+		}
+	}
+
+	return
+}
 
 // LoadProfiles ...
 //
@@ -66,22 +110,6 @@ func LoadProfiles(files []string) (profiles []Profile, err error) {
 		}
 
 		profiles = append(profiles, profile)
-	}
-
-	return
-}
-
-// FromPprof converts a pprof memory profile to `Profile`.
-//k
-//
-func FromPprof(src *pprof.Profile) (profile Profile, err error) {
-	profile.Data = map[string]int64{}
-
-	var fn string
-
-	for _, sample := range src.Sample {
-		fn = sample.Location[0].Line[0].Function.Name
-		profile.Data[fn] = profile.Data[fn] + sample.Value[0]
 	}
 
 	return
