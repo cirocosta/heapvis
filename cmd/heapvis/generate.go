@@ -7,11 +7,17 @@ import (
 )
 
 type generateCommand struct {
-	Paths  []string `long:"profile" required:"true" description:"pprof profile to read"`
-	Output string   `long:"output" default:"-"`
+	Functions []string `long:"functions" description:"fns to filter by"`
+	Output    string   `long:"output" default:"-"`
+	Paths     []string `long:"profile" required:"true" description:"pprof profile to read"`
 }
 
+const (
+	fn = "github.com/concourse/concourse/atc/scheduler.(*Runner).Run"
+)
+
 func (c *generateCommand) Execute(args []string) (err error) {
+
 	var (
 		paths   = []string{}
 		matches []string
@@ -30,6 +36,8 @@ func (c *generateCommand) Execute(args []string) (err error) {
 	if err != nil {
 		return
 	}
+
+	profiles = pkg.Filter(profiles, c.Functions...)
 
 	w, err := writer(c.Output)
 	if err != nil {

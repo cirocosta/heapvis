@@ -34,12 +34,13 @@ const (
 //
 
 type (
+	Values [4]int64
 
 	// Profile represents a summarized representation of a pprof capture.
 	//
 	// It maps a given source line location to a statistic.
 	//
-	Profile map[string][4]int64
+	Profile map[string]Values
 )
 
 const (
@@ -79,7 +80,7 @@ func FromPprof(src *pprof.Profile) (profile Profile, err error) {
 			existing = profile[fn]
 		)
 
-		profile[fn] = [4]int64{
+		profile[fn] = Values{
 			existing[0] + sample.Value[0],
 			existing[1] + sample.Value[1],
 			existing[2] + sample.Value[2],
