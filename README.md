@@ -14,3 +14,20 @@ for instance, given 18 heap profiles, we can tell how the distribution of
 `inuse_space` for certain functions look like:
 
 ![](./assets/distr.png)
+
+```bash
+heapvis generate \
+  --profile='*.pprof' \
+  --function 'github.com/concourse/concourse/atc.collectPlans' \
+  --function='io.copyBuffer' \
+  --function='github.com/concourse/concourse/atc/db.(*pipeline).LoadVersionsDB' \
+  --function='encoding/json.(*decodeState).literalStore' \
+  > ./sample.csv
+```
+
+
+```r
+data <- read.table("./sample.csv", header=TRUE, sep=",")
+ggplot(data, aes(x = inuse_space, y = fn)) + 
+  geom_density_ridges()
+```
