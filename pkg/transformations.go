@@ -4,7 +4,9 @@ import (
 	"fmt"
 )
 
-//
+// Xor performans an "exclusive or"-a-like subtraction, returning `0`-values
+// when not found in both sides (or the same), and regular subtraction when
+// present in both but not equal.
 //
 // a: {
 //   "foo": {1},
@@ -48,30 +50,28 @@ func Xor(a, b Profile) (res Profile) {
 	return
 }
 
-func WithFunctions(p Profile, fn string) (res Profile, found bool) {
-	var vals Values
-
-	vals, found = p[fn]
-	if !found {
-		return
-	}
-
-	return Profile{
-		fn: vals,
-	}, true
-}
-
+// Filter takes care of filtering out functions that we don't care about.
+//
+// A function is considered "in" if specified in `fns`.
+//
 func Filter(src []Profile, fns ...string) (res []Profile) {
 	res = []Profile{}
 
 	for _, profile := range src {
+
+		resProfile := Profile{}
+
 		for _, fn := range fns {
 			vals, found := profile[fn]
 			if !found {
 				continue
 			}
 
-			res = append(res, Profile{fn: vals})
+			resProfile[fn] = vals
+		}
+
+		if len(resProfile) > 0 {
+			res = append(res, resProfile)
 		}
 	}
 

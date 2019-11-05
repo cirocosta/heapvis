@@ -36,7 +36,7 @@ var _ = Describe("transformations", func() {
 		),
 	)
 
-	Describe("filter", func() {
+	FDescribe("filter", func() {
 
 		type filterTest struct {
 			src, res []pkg.Profile
@@ -67,15 +67,72 @@ var _ = Describe("transformations", func() {
 			}),
 			Entry("w/ fn, rest out", filterTest{
 				src: []pkg.Profile{
-					{"fn2": pkg.Values{1, 2}},
+					{"fn1": pkg.Values{1}},
+					{"fn2": pkg.Values{2}},
+					{"fn3": pkg.Values{3}},
 				},
-				res: []pkg.Profile{},
-				fns: []string{"fn1"},
+				res: []pkg.Profile{
+					{"fn2": pkg.Values{2}},
+				},
+				fns: []string{"fn2"},
+			}),
+			Entry("w/ fn in multiple profiles, rest out", filterTest{
+				src: []pkg.Profile{
+					{
+						"fn1": pkg.Values{1},
+						"fn2": pkg.Values{2},
+					},
+					{"fn2": pkg.Values{22}},
+					{"fn3": pkg.Values{3}},
+				},
+				res: []pkg.Profile{
+					{"fn2": pkg.Values{2}},
+					{"fn2": pkg.Values{22}},
+				},
+				fns: []string{"fn2"},
+			}),
+			Entry("w/ multiple fn, rest out", filterTest{
+				src: []pkg.Profile{
+					{"fn1": pkg.Values{1}},
+					{"fn2": pkg.Values{2}},
+					{"fn3": pkg.Values{3}},
+				},
+				res: []pkg.Profile{
+					{"fn2": pkg.Values{2}},
+					{"fn3": pkg.Values{3}},
+				},
+				fns: []string{"fn2", "fn3"},
+			}),
+			Entry("w/ multiple fn in multiple profiles, rest out", filterTest{
+				src: []pkg.Profile{
+					{"fn1": pkg.Values{1}},
+					{
+						"fn2":   pkg.Values{2},
+						"fn3":   pkg.Values{3},
+						"fnFOO": pkg.Values{99},
+					},
+					{
+						"fn2":   pkg.Values{22},
+						"fn3":   pkg.Values{33},
+						"fnFOO": pkg.Values{99},
+					},
+				},
+				res: []pkg.Profile{
+					{
+						"fn2": pkg.Values{2},
+						"fn3": pkg.Values{3},
+					},
+					{
+						"fn2": pkg.Values{22},
+						"fn3": pkg.Values{33},
+					},
+				},
+				fns: []string{"fn2", "fn3"},
 			}),
 		)
 	})
 
-	XDescribe("Delta", func() {
+	Describe("Delta", func() {
 
 		var (
 			src, profiles []pkg.Profile

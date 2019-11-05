@@ -1,20 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/cirocosta/heapvis/pkg"
 )
 
 type generateCommand struct {
-	Functions []string `long:"functions" description:"fns to filter by"`
-	Output    string   `long:"output" default:"-"`
+	Functions []string `long:"function"                description:"fns to filter by"`
+	Output    string   `long:"output"                  default:"-"`
 	Paths     []string `long:"profile" required:"true" description:"pprof profile to read"`
-}
 
-const (
-	fn = "github.com/concourse/concourse/atc/scheduler.(*Runner).Run"
-)
+	ShowFuncs bool `long:"show-funcs"`
+}
 
 func (c *generateCommand) Execute(args []string) (err error) {
 
@@ -37,10 +36,30 @@ func (c *generateCommand) Execute(args []string) (err error) {
 		return
 	}
 
-	profiles = pkg.Filter(profiles, c.Functions...)
+	pkg.Normalize(profiles)
+
+	if len(c.Functions) > 0 {
+		profiles = pkg.Filter(profiles, c.Functions...)
+	}
 
 	w, err := writer(c.Output)
 	if err != nil {
+		return
+	}
+
+	if c.ShowFuncs {
+		funcs := map[string]struct{}{}
+
+		for _, profile := range profiles {
+			for k := range profile {
+				funcs[k] = struct{}{}
+			}
+		}
+
+		for k := range funcs {
+			fmt.Fprintf(w, "%s\n", k)
+		}
+
 		return
 	}
 
